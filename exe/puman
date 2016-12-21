@@ -1,3 +1,5 @@
 #!/usr/bin/env ruby
 
 require "puman"
+
+Puman::CLI.start(ARGV)
