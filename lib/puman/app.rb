@@ -28,16 +28,18 @@ module Puman
     end
 
     def list
-      puts "-- symlink apps --"
+      string = []
+      string << "-- symlink apps --"
       @symlink_apps.sort_by(&:name).each do |app|
-        puts app.name
+        string << app.name
       end
 
-      puts
-      puts "-- proxy apps --"
+      string << ''
+      string << "-- proxy apps --"
       @proxy_apps.sort_by(&:host_port).each do |app|
-        puts "#{app.host_port.strip.rjust(@proxy_max_length)} => #{app.name}"
+        string << "#{app.host_port.strip.rjust(@proxy_max_length)} => #{app.name}"
       end
+      string.join("\n")
     end
 
     def server

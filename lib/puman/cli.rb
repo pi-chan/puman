@@ -12,7 +12,7 @@ module Puman
 
     desc "list", "list all apps linked with puma-dev"
     def list
-      @app_list.list
+      puts @app_list.list
     end
 
     desc "server", "run rails server"
