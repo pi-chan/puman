@@ -4,22 +4,23 @@ require 'fakefs/safe'
 
 PUMA_DEV_DIR = File.join(Dir.home, '.puma-dev')
 SAMPLE_DIR = File.join(Dir.home, 'src', 'sample')
-PROXY_FILE = File.join(Dir.home, '.puma-dev', 'proxy')
+SAMPLE_PROXY_DIR = File.join(Dir.home, 'src', 'proxy1')
+PROXY_FILE_1 = File.join(Dir.home, '.puma-dev', 'proxy1')
+PROXY_FILE_2 = File.join(Dir.home, '.puma-dev', 'proxy2')
 SYMLINK_FILE = File.join(Dir.home, '.puma-dev', 'symlink')
 
 RSpec.configure do |config|
   config.order = 'random'
 
-  config.before(:all) do
+  config.before(:each) do
     FakeFS.activate!
+    FakeFS::FileSystem.clear
     FileUtils::mkdir_p PUMA_DEV_DIR
     FileUtils::mkdir_p SAMPLE_DIR
-    File.open(PROXY_FILE + '1', 'w') { |f| f.write '3001' }
-    File.open(PROXY_FILE + '2', 'w') { |f| f.write '3002' }
-    FileUtils::ln_s(SAMPLE_DIR, SYMLINK_FILE) unless File.symlink?(SYMLINK_FILE)
+    FileUtils::mkdir_p SAMPLE_PROXY_DIR
   end
 
-  config.after(:all) do
+  config.after(:each) do
     FakeFS.deactivate!
   end
 end

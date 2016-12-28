@@ -42,14 +42,14 @@ module Puman
       string.join("\n")
     end
 
-    def server
+    def server_command
       name = File.basename(git_dir_or_current_dir)
       apps = @proxy_apps.select{|app| app.name == name}
       if apps.size != 1
         puts 'no or multiple apps are defind.'
       else
         app = apps.first
-        exec "bundle exec rails server -p #{app.host_port}" if app.host_port.match /^\d+$/
+        "bundle exec rails server -p #{app.host_port}" if app.host_port.match /^\d+$/
       end
     end
 

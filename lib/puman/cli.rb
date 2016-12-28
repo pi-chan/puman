@@ -17,7 +17,7 @@ module Puman
 
     desc "server", "run rails server"
     def server
-      @app_list.server
+      exec @app_list.server_command
     end
 
     desc 'version', 'version'
