@@ -9,6 +9,8 @@ module Puman
   end
 
   class AppList
+    attr_accessor :symlink_apps, :proxy_apps
+
     def initialize
       @symlink_apps = []
       @proxy_apps = []

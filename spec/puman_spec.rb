@@ -1,26 +1,21 @@
 require "spec_helper"
 
-PUMA_DEV_DIR = '~/.puma-dev'
-SAMPLE_DIR = '~/src/sample'
-
 describe Puman do
-  before do
-    FakeFS.activate!
-    Dir::mkdir_p PUMA_DEV_DIR
-    Dir::mkdir_p SAMPLE_DIR
-    File.open('~/.puma-dev/proxy', 'w') { |f| f.write 'Hello, World.' }
-    File.symlink('~/.puma-dev/symlink', SAMPLE_DIR)
-  end
-
-  after do
-    FakeFS.deactivate!
-  end
-
   it 'has a version number' do
     expect(Puman::VERSION).not_to be nil
   end
+end
 
-  it '' do
-    expect(false).to eq(true)
+describe Puman::AppList do
+  before do
+    @app_list = Puman::AppList.new
+  end
+
+  specify '#symlink_apps' do
+    expect(@app_list.symlink_apps.size).to eq(1)
+  end
+
+  specify '#proxy_apps' do
+    expect(@app_list.proxy_apps.size).to eq(2)
   end
 end
