@@ -1,10 +1,11 @@
 require 'thor'
-require 'pry'
 
 module Puman
   App = Struct.new(:name, :host_port)
 
   class CLI < Thor
+    default_command :server
+
     def initialize(args, opts, config)
       super
       correct_apps
@@ -24,15 +25,28 @@ module Puman
       end
     end
 
-    desc "proxify", "make a text file with new host and port"
-    def proxify
-      puts 'hello'
+    desc "server", "run rails server"
+    def server
+      name = File.basename(git_dir_or_current_dir)
+      apps = @proxy_apps.select{|app| app.name == name}
+      if apps.size != 1
+        puts 'no or multiple apps are defind.'
+      else
+        app = apps.first
+        exec "bundle exec rails server -p #{app.host_port}" if app.host_port.match /^\d+$/
+      end
     end
 
     desc 'version', 'version'
     def version
       puts Puman::VERSION
     end
+
+    # TODO
+    # desc "proxify", "make a text file with new host and port"
+    # def proxify
+    #   puts 'hello'
+    # end
 
     private
 
@@ -51,6 +65,22 @@ module Puman
         end
       end
       @proxy_max_length = @proxy_apps.map {|app| app.host_port.strip.size}.max
+    end
+
+    def root_directory?(path)
+      File.directory?(path) && File.expand_path(path) == File.expand_path(File.join(path, '..'))
+    end
+
+    def git_dir_or_current_dir
+      current_path = Dir.pwd
+      until root_directory?(current_path)
+        if File.exist?(File.join(current_path, '.git'))
+          return current_path
+        else
+          current_path = File.dirname(current_path)
+        end
+      end
+      Dir.pwd
     end
   end
 end
