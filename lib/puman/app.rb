@@ -1,4 +1,6 @@
 module Puman
+  PUMA_DEV_DIR = File.join(Dir.home, '.puma-dev')
+
   class App
     attr_accessor :name, :host_port
 
@@ -14,7 +16,7 @@ module Puman
     def initialize
       @symlink_apps = []
       @proxy_apps = []
-      Dir.chdir File.join(Dir.home, '.puma-dev') do
+      Dir.chdir PUMA_DEV_DIR do
         Dir.glob('*').each do |file|
           if File.symlink?(file)
             @symlink_apps.push App.new(file, nil)
@@ -51,6 +53,10 @@ module Puman
         app = apps.first
         "bundle exec rails server -p #{app.host_port}" if app.host_port.match /^\d+$/
       end
+    end
+
+    def include?(name)
+      (@symlink_apps + @proxy_apps).map(&:name).include?(name)
     end
 
     private
