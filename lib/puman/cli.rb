@@ -23,20 +23,52 @@ module Puman
 
     desc "server", "run rails server"
     def server
-      exec @app_list.server_command
+      command = @app_list.server_command
+      if command
+        exec command
+      else
+        puts 'no or multiple apps are defind.'
+        exit 1
+      end
     end
 
-    desc "symlink DIR_PATH", "create symlink into puma-dev directory."
-    def symlink(dir)
-      file = File.expand_path(dir)
-      return puts 'invalid argument.' unless File.exists?(file)
-
-      link_name = File.basename(file)
-      if @app_list.include?(link_name)
+    desc "create DIR_PATH", "create symlink in puma-dev directory."
+    option :symlink, aliases: '-t', type: :boolean
+    option :proxy, aliases: '-p', type: :boolean
+    def create(dir)
+      check_create_options
+      proxy = options[:proxy]
+      symlink = options[:symlink]
+      target_dir = target_directory(dir)
+      if @app_list.include?(target_dir)
         puts 'already exists.'
-      else
-        FileUtils::ln_s(File.join(Dir.pwd, link_name), File.join(PUMA_DEV_DIR, link_name))
+      elsif symlink
+        FileUtils::ln_s(File.join(Dir.pwd, target_dir), File.join(PUMA_DEV_DIR, target_dir))
         puts 'symlink created.'
+      elsif proxy
+      end
+    end
+
+    private
+
+    def target_directory(arg_dir)
+      file = File.expand_path(arg_dir)
+      unless File.exists?(file)
+        puts 'invalid argument.'
+        exit 1
+      end
+      File.basename(file)
+    end
+
+    def check_create_options
+      proxy = options[:proxy]
+      symlink = options[:symlink]
+      if (proxy && symlink)
+        puts "Cannot pass both '--proxy' and '--symlink'."
+        exit 1
+      elsif (!proxy && !symlink)
+        puts "'--proxy' or '--symlink' must be passed."
+        exit 1
       end
     end
   end
