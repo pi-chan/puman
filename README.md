@@ -2,6 +2,8 @@
 
 You can forget puma-dev proxy port numbers for your Rails apps!
 
+`Puman` only supports macOS for now.
+
 ## Usage
 
 ```
