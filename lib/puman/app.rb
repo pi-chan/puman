@@ -47,11 +47,17 @@ module Puman
     def server_command
       name = File.basename(git_dir_or_current_dir)
       apps = @proxy_apps.select{|app| app.name == name}
-      if apps.size != 1
-        return nil
-      else
-        app = apps.first
-        "bundle exec rails server -p #{app.host_port}" if app.host_port.match /^\d+$/
+      if apps.size == 1 && (app = apps.first).host_port.match(/^\d+$/)
+        "WEBPACKER_DEV_SERVER_PORT=#{devserver_port(app)} WEBPACKER_DEV_SERVER_PUBLIC=localhost:#{devserver_port(app)} bundle exec rails server -p #{app.host_port}"
+      end
+    end
+
+    def webpack_dev_server_command
+      name = File.basename(git_dir_or_current_dir)
+      apps = @proxy_apps.select{|app| app.name == name}
+      if apps.size == 1 && File.exists?(File.join(Dir.pwd, 'bin/webpack-dev-server'))
+         app = apps.first
+        "WEBPACKER_DEV_SERVER_PORT=#{devserver_port(app)} WEBPACKER_DEV_SERVER_PUBLIC=localhost:#{devserver_port(app)} ./bin/webpack-dev-server"
       end
     end
 
@@ -60,6 +66,10 @@ module Puman
     end
 
     private
+
+    def devserver_port(app)
+      (app.host_port.to_i + 10000).to_s
+    end
 
     def root_directory?(path)
       File.directory?(path) && File.expand_path(path) == File.expand_path(File.join(path, '..'))

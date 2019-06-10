@@ -23,13 +23,19 @@ module Puman
 
     desc "server", "run rails server"
     def server
-      command = @app_list.server_command
-      if command
-        exec command
-      else
+      server_command = @app_list.server_command
+      webpack_dev_server_command = @app_list.webpack_dev_server_command
+
+      if server_command.nil?
         puts 'no or multiple apps are defind.'
         exit 1
       end
+
+      if webpack_dev_server_command
+        spawn webpack_dev_server_command
+      end
+      exec server_command
+    rescue
     end
 
     desc "symlink DIR_PATH", "create symlink in puma-dev directory."
