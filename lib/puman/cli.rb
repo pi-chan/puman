@@ -32,20 +32,24 @@ module Puman
       end
     end
 
-    desc "create DIR_PATH", "create symlink in puma-dev directory."
-    option :symlink, aliases: '-t', type: :boolean
-    option :proxy, aliases: '-p', type: :boolean
-    def create(dir)
-      check_create_options
-      proxy = options[:proxy]
-      symlink = options[:symlink]
+    desc "symlink DIR_PATH", "create symlink in puma-dev directory."
+    def symlink(dir)
+      target_dir, basename = target_directory(dir)
+      if @app_list.include?(basename)
+        puts 'already exists.'
+      elnse
+        FileUtils::ln_s(target_dir, File.join(PUMA_DEV_DIR, basename))
+        puts 'symlink created.'
+      end
+    end
+
+    desc "proxy DIR_PATH", "create proxy file in puma-dev directory."
+    def proxy(dir)
       target_dir = target_directory(dir)
       if @app_list.include?(target_dir)
         puts 'already exists.'
-      elsif symlink
-        FileUtils::ln_s(File.join(Dir.pwd, target_dir), File.join(PUMA_DEV_DIR, target_dir))
-        puts 'symlink created.'
-      elsif proxy
+      else
+        puts 'proxy option has not been implemented yet.'
       end
     end
 
@@ -57,19 +61,7 @@ module Puman
         puts 'invalid argument.'
         exit 1
       end
-      File.basename(file)
-    end
-
-    def check_create_options
-      proxy = options[:proxy]
-      symlink = options[:symlink]
-      if (proxy && symlink)
-        puts "Cannot pass both '--proxy' and '--symlink'."
-        exit 1
-      elsif (!proxy && !symlink)
-        puts "'--proxy' or '--symlink' must be passed."
-        exit 1
-      end
+      [file, File.basename(file)]
     end
   end
 end
